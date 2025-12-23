@@ -6,10 +6,11 @@
     <app-form-busca></app-form-busca>
     <h2>Promocoes</h2>
     <div class="card-wrapper">
-        <app-card-busca></app-card-busca>
-        <app-card-busca></app-card-busca>
-        <app-card-busca></app-card-busca>
-        <app-card-busca></app-card-busca>
+        <app-card-busca *ngFor="let promocao of promocoes"
+            [destino]="promocao.destino"
+            [preco]="promocao.preco"
+            [imagem]="promocao.imagem"
+        ></app-card-busca>
     </div>
     <h2>Depoimentos</h2>
     <div class="card-wrapper">
