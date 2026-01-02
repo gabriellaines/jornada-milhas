@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormularioService } from 'src/app/core/services/formulario.service';
 import { UnidadeFederativa } from 'src/app/core/types/types';
+import { FormValidations } from '../form-validations';
 
 @Component({
   selector: 'app-form-base',
@@ -11,9 +13,15 @@ export class FormBaseComponent implements OnInit {
   
   cadastroForm!: FormGroup;
   estadoControl = new FormControl<UnidadeFederativa | null>(null, Validators.required);
+  @Input() perfilComponent: boolean = false;
+  @Input() titulo: string = 'Crie sua conta';
+  @Input() textoBotao: string = 'CADASTRAR';
+  @Output() acaoClique: EventEmitter<void> = new EventEmitter<void>();
+  @Output() sair: EventEmitter<void> = new EventEmitter<void>();
 
   constructor(
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private formularioService: FormularioService
   ) { }
 
   ngOnInit() {
@@ -27,9 +35,28 @@ export class FormBaseComponent implements OnInit {
       genero: ['outro'],
       telefone: [null, Validators.required],
       estado: this.estadoControl,
-      confirmarEmail: [null, [Validators.required, Validators.email]],
-      confirmarSenha: [null, [Validators.required, Validators.minLength(3)]],
+      confirmarEmail: [null, [Validators.required, Validators.email, FormValidations.equalTo('email')]],
+      confirmarSenha: [null, [Validators.required, Validators.minLength(3), FormValidations.equalTo('senha')]],
       aceitarTermos: [null, [Validators.requiredTrue]]
     });
+
+    if (this.perfilComponent) {
+      this.cadastroForm.get('aceitarTermos')?.setValidators(null);
+    } else {
+      this.cadastroForm.get('aceitarTermos')?.setValidators(Validators.requiredTrue);
+    }
+
+    this.cadastroForm.get('aceitarTermos')?.updateValueAndValidity();
+
+    this.formularioService.cadastro = this.cadastroForm;
   }
+
+  executarAcao() {
+    this.acaoClique.emit();
+  }
+
+  deslogar() {
+    this.sair.emit();
+  }
+
 }

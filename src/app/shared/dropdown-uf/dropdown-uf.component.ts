@@ -13,6 +13,7 @@ import { UnidadeFederativa } from 'src/app/core/types/types';
 export class DropdownUfComponent implements OnInit {
   @Input() label: string = '';
   @Input() iconePrefixo: string = '';
+  @Input() placeholder: string = '';
   @Input() control!: FormControl;
 
   unidadesFederativas: UnidadeFederativa[] = [];
@@ -20,25 +21,28 @@ export class DropdownUfComponent implements OnInit {
   filteredOptions$?: Observable<UnidadeFederativa[]>;
 
 
-  constructor(
-    private unidadeFederativaService: UnidadeFederativaService) {
-
-  }
+  constructor(private readonly unidadeFederativaService: UnidadeFederativaService) {}
 
   ngOnInit(): void {
     this.unidadeFederativaService.listar()
       .subscribe(dados => {
         this.unidadesFederativas = dados
         console.log(this.unidadesFederativas)
-      })
+      });
+      
     this.filteredOptions$ = this.control.valueChanges.pipe(
       startWith(''),
       map(value => this.filtrarUfs(value))
-    )
+    );
   }
 
-  filtrarUfs(value: string): UnidadeFederativa[] {
-    const valorFiltrado = value?.toLowerCase();
+  displayFn(dataToDisplay: UnidadeFederativa): string {
+    return dataToDisplay ? dataToDisplay.nome : '';
+  }
+
+  filtrarUfs(value: string | UnidadeFederativa): UnidadeFederativa[] {
+    const nomeUf = typeof value === 'string' ? value : value?.nome;
+    const valorFiltrado = nomeUf?.toLowerCase();
     const result = this.unidadesFederativas.filter(
       estado => estado.nome.toLowerCase().includes(valorFiltrado)
     )
